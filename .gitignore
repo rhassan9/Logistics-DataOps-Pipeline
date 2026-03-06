@@ -1,0 +1,37 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment Variables
+.env
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data Folders (Exclude heavy datasets and intermediate files)
+data/raw/
+data/processed/
+Dataset/
+eda_script.py
+eda_report.md
+
+# Logs
+*.log
+pipeline.log
+
+# Mac OS Directory Metafiles
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Temporary & Instructional Files
+DATABASE_SCHEMA.txt
+eda_script.py
+eda_report.md
+.ipynb_checkpoints/
+tasks_to_do.MD

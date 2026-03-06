@@ -1,0 +1,51 @@
+driver_id,first_name,last_name,hire_date,termination_date,license_number,license_state,date_of_birth,home_terminal,employment_status,cdl_class,years_experience,is_active_driver
+DRV00001,Jennifer,Hernandez,2014-10-31,,DL673510887,WA,1973-11-07,Denver,Active,A,3,True
+DRV00002,William,Martin,2020-10-02,,DL128955006,GA,1976-11-03,Columbus,Active,A,20,True
+DRV00003,Charles,Hernandez,2021-09-21,,DL523076025,NC,1970-04-06,Salt Lake City,Active,A,19,True
+DRV00004,Barbara,Brown,2013-09-08,,DL735540030,WA,1995-02-06,Denver,Active,A,19,True
+DRV00005,Mary,Martinez,2018-12-02,,DL706011277,AZ,1960-07-15,Chicago,Active,A,12,True
+DRV00006,Robert,Taylor,2019-04-04,,DL811890569,NC,1990-05-02,Portland,Active,A,23,True
+DRV00007,James,Martinez,2019-07-02,2021-05-17,DL129100607,PA,1974-05-23,Miami,Terminated,A,5,False
+DRV00008,Barbara,Wilson,2020-06-09,2021-01-23,DL190137896,CO,1978-12-28,Philadelphia,Terminated,A,15,False
+DRV00009,Karen,Hernandez,2013-09-29,,DL790147183,FL,1989-02-22,Los Angeles,Active,A,13,True
+DRV00010,Sarah,Gonzalez,2020-11-08,,DL560219456,WA,1974-05-26,Minneapolis,Active,A,23,True
+DRV00011,Michael,Martinez,2014-06-01,,DL245706210,FL,1972-07-04,Dallas,Active,A,15,True
+DRV00012,Robert,Moore,2013-09-12,,DL595744935,MO,1994-04-21,Nashville,Active,A,25,True
+DRV00013,Jessica,Jones,2015-11-21,,DL295130056,WI,1969-05-27,Philadelphia,Active,A,3,True
+DRV00014,Richard,Miller,2021-01-10,,DL153992714,FL,1969-02-02,Salt Lake City,Active,A,11,True
+DRV00015,Susan,Wilson,2015-05-20,,DL379340713,OH,1970-05-20,Salt Lake City,Active,A,21,True
+DRV00016,Thomas,Gonzalez,2017-04-09,,DL507059676,GA,1978-08-04,Kansas City,Active,A,11,True
+DRV00017,William,Garcia,2021-08-24,,DL451492250,IN,1989-12-10,Atlanta,Active,A,13,True
+DRV00018,Patricia,Martin,2021-09-01,,DL327268503,PA,1985-05-17,Chicago,Active,A,5,True
+DRV00019,Robert,Jackson,2020-12-14,,DL588229686,TX,1994-08-15,Seattle,Active,A,20,True
+DRV00020,Joseph,Martinez,2019-07-21,,DL450948014,TX,1965-10-02,Houston,Active,A,18,True
+DRV00021,Patricia,Gonzalez,2019-05-25,2021-05-23,DL462388455,OK,1987-12-11,New York,Terminated,A,8,False
+DRV00022,Charles,Moore,2016-05-03,,DL917364173,NV,1976-01-03,Memphis,Active,A,6,True
+DRV00023,David,Smith,2015-04-03,,DL507083673,NC,1974-11-27,Philadelphia,Active,A,23,True
+DRV00024,Barbara,Martinez,2021-09-15,,DL398775766,OH,1961-11-27,Dallas,Active,A,17,True
+DRV00025,Jessica,Martinez,2015-09-17,,DL907464398,NE,1977-10-02,Omaha,Active,A,9,True
+DRV00026,Charles,Miller,2019-10-10,,DL993271900,TX,1971-08-17,Columbus,Active,A,5,True
+DRV00027,Karen,Wilson,2013-12-22,2015-03-16,DL552651788,WI,1988-05-06,Philadelphia,Terminated,A,13,False
+DRV00028,Susan,Jackson,2014-09-19,,DL370874491,NC,1987-11-27,Memphis,Active,A,19,True
+DRV00029,James,Martin,2014-02-20,,DL996478772,UT,1991-02-16,Philadelphia,Active,A,13,True
+DRV00030,Jessica,Hernandez,2015-11-22,,DL187946147,WI,1982-07-11,Houston,Active,A,5,True
+DRV00031,Charles,Anderson,2017-04-19,2019-07-18,DL604988121,NC,1980-11-04,Seattle,Terminated,A,10,False
+DRV00032,Michael,Anderson,2019-07-14,,DL120812641,MN,1970-06-14,Omaha,Active,A,20,True
+DRV00033,William,Anderson,2016-12-19,,DL904258674,GA,1991-05-22,New York,Active,A,9,True
+DRV00034,Thomas,Miller,2015-05-25,,DL679196799,TX,1985-09-02,Kansas City,Active,A,15,True
+DRV00035,Michael,Taylor,2018-11-19,,DL155926488,MI,1989-02-11,Atlanta,Active,A,19,True
+DRV00036,Michael,Thomas,2012-12-04,,DL475767056,TX,1976-06-04,Miami,Active,A,21,True
+DRV00037,Jessica,Garcia,2012-04-03,,DL340756713,OR,1985-09-27,New York,Active,A,21,True
+DRV00038,William,Williams,2021-12-06,,DL798086909,WI,1960-11-28,New York,Active,A,23,True
+DRV00039,Thomas,Martinez,2013-06-29,,DL173678414,TX,1994-08-14,Columbus,Active,A,22,True
+DRV00040,Charles,Taylor,2012-12-19,2014-05-14,DL938842599,MI,1963-04-17,Miami,Terminated,A,19,False
+DRV00041,Karen,Martin,2020-03-19,,DL799816232,TN,1983-10-25,Phoenix,Active,A,2,True
+DRV00042,Richard,Hernandez,2014-03-05,2015-09-07,DL143226844,TN,1991-11-15,Los Angeles,Terminated,A,21,False
+DRV00043,Mary,Williams,2017-04-06,,DL909851739,CO,1963-04-09,Nashville,Active,A,23,True
+DRV00044,Richard,Davis,2018-03-10,,DL133318206,NC,1995-03-10,Atlanta,Active,A,24,True
+DRV00045,Thomas,Martinez,2018-11-20,,DL365518424,OH,1988-12-16,New York,Active,A,10,True
+DRV00046,Susan,Davis,2020-04-05,2022-05-05,DL314061901,IN,1967-01-21,Atlanta,Terminated,A,2,False
+DRV00047,Elizabeth,Miller,2019-08-04,,DL121882877,CO,1975-12-06,Denver,Active,A,7,True
+DRV00048,Thomas,Jones,2013-06-10,2015-04-18,DL767154083,NV,1979-09-01,Houston,Terminated,A,10,False
+DRV00049,John,Smith,2018-03-25,,DL263619298,OK,1995-07-03,Memphis,Active,A,24,True
+DRV00050,Robert,Johnson,2020-11-09,,DL356135680,OH,1974-02-15,Seattle,Active,A,11,True
