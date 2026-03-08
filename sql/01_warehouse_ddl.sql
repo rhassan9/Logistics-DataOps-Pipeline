@@ -15,8 +15,7 @@ CREATE SCHEMA IF NOT EXISTS analytics;
 
 -- Dim_Driver
 CREATE TABLE IF NOT EXISTS analytics.Dim_Driver (
-    driver_sk SERIAL PRIMARY KEY,
-    driver_id VARCHAR(50) UNIQUE NOT NULL,
+    driver_id VARCHAR(50) PRIMARY KEY,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     hire_date DATE,
@@ -31,8 +30,7 @@ CREATE TABLE IF NOT EXISTS analytics.Dim_Driver (
 
 -- Dim_Truck
 CREATE TABLE IF NOT EXISTS analytics.Dim_Truck (
-    truck_sk SERIAL PRIMARY KEY,
-    truck_id VARCHAR(50) UNIQUE NOT NULL,
+    truck_id VARCHAR(50) PRIMARY KEY,
     make VARCHAR(50),
     model_year INTEGER,
     fuel_type VARCHAR(50),
@@ -43,8 +41,7 @@ CREATE TABLE IF NOT EXISTS analytics.Dim_Truck (
 
 -- Dim_Customer
 CREATE TABLE IF NOT EXISTS analytics.Dim_Customer (
-    customer_sk SERIAL PRIMARY KEY,
-    customer_id VARCHAR(50) UNIQUE NOT NULL,
+    customer_id VARCHAR(50) PRIMARY KEY,
     customer_name VARCHAR(255),
     customer_type VARCHAR(100),
     credit_terms_days INTEGER,
@@ -54,8 +51,7 @@ CREATE TABLE IF NOT EXISTS analytics.Dim_Customer (
 
 -- Dim_Route
 CREATE TABLE IF NOT EXISTS analytics.Dim_Route (
-    route_sk SERIAL PRIMARY KEY,
-    route_id VARCHAR(50) UNIQUE NOT NULL,
+    route_id VARCHAR(50) PRIMARY KEY,
     origin_city VARCHAR(100),
     origin_state VARCHAR(2),
     destination_city VARCHAR(100),
@@ -66,8 +62,7 @@ CREATE TABLE IF NOT EXISTS analytics.Dim_Route (
 
 -- Dim_Facility
 CREATE TABLE IF NOT EXISTS analytics.Dim_Facility (
-    facility_sk SERIAL PRIMARY KEY,
-    facility_id VARCHAR(50) UNIQUE NOT NULL,
+    facility_id VARCHAR(50) PRIMARY KEY,
     facility_name VARCHAR(255),
     facility_type VARCHAR(100),
     city VARCHAR(100),
@@ -91,7 +86,13 @@ CREATE TABLE IF NOT EXISTS analytics.Dim_Date (
 -- Dim_Delay_Reason (NLP Categorizations)
 CREATE TABLE IF NOT EXISTS analytics.Dim_Delay_Reason (
     delay_reason_sk SERIAL PRIMARY KEY,
-    delay_reason_category VARCHAR(100) UNIQUE NOT NULL
+    delay_reason_category VARCHAR(100) UNIQUE
+);
+
+-- Dim_Incident_Category (NLP Categorizations)
+CREATE TABLE IF NOT EXISTS analytics.Dim_Incident_Category (
+    incident_category_sk SERIAL PRIMARY KEY,
+    incident_category VARCHAR(100) UNIQUE
 );
 
 -- -------------------------------------------------------------------------
@@ -105,10 +106,11 @@ CREATE TABLE IF NOT EXISTS analytics.Fact_Shipment (
     trip_id VARCHAR(50),      -- Degenerate Dimension
     
     -- Foreign Keys
-    driver_sk INT REFERENCES analytics.Dim_Driver(driver_sk),
-    truck_sk INT REFERENCES analytics.Dim_Truck(truck_sk),
-    customer_sk INT REFERENCES analytics.Dim_Customer(customer_sk),
-    route_sk INT REFERENCES analytics.Dim_Route(route_sk),
+    driver_id VARCHAR(50) REFERENCES analytics.Dim_Driver(driver_id),
+    truck_id VARCHAR(50) REFERENCES analytics.Dim_Truck(truck_id),
+    customer_id VARCHAR(50) REFERENCES analytics.Dim_Customer(customer_id),
+    route_id VARCHAR(50) REFERENCES analytics.Dim_Route(route_id),
+    facility_id VARCHAR(50) REFERENCES analytics.Dim_Facility(facility_id),
     dispatch_date_sk INT REFERENCES analytics.Dim_Date(date_sk),
     delay_reason_sk INT REFERENCES analytics.Dim_Delay_Reason(delay_reason_sk),
     
@@ -141,7 +143,7 @@ CREATE TABLE IF NOT EXISTS analytics.Fact_Maintenance_Event (
     maintenance_id VARCHAR(50), -- Degenerate Dimension
     
     -- Foreign Keys
-    truck_sk INT REFERENCES analytics.Dim_Truck(truck_sk),
+    truck_id VARCHAR(50) REFERENCES analytics.Dim_Truck(truck_id),
     maintenance_date_sk INT REFERENCES analytics.Dim_Date(date_sk),
     
     -- Measures
@@ -152,9 +154,10 @@ CREATE TABLE IF NOT EXISTS analytics.Fact_Maintenance_Event (
     total_cost NUMERIC(10, 2),
     downtime_hours NUMERIC(10, 2),
     
-    -- NLP Categorizations
+    -- NLP Categorizations & Degenerate Dimensions
     maintenance_type VARCHAR(100),
-    nlp_delay_reason VARCHAR(100)
+    delay_reason_sk INT REFERENCES analytics.Dim_Delay_Reason(delay_reason_sk),
+    service_description VARCHAR(2000)
 );
 
 -- Fact_Safety_Incident
@@ -163,8 +166,8 @@ CREATE TABLE IF NOT EXISTS analytics.Fact_Safety_Incident (
     incident_id VARCHAR(50), -- Degenerate Dimension
     
     -- Foreign Keys
-    driver_sk INT REFERENCES analytics.Dim_Driver(driver_sk),
-    truck_sk INT REFERENCES analytics.Dim_Truck(truck_sk),
+    driver_id VARCHAR(50) REFERENCES analytics.Dim_Driver(driver_id),
+    truck_id VARCHAR(50) REFERENCES analytics.Dim_Truck(truck_id),
     incident_date_sk INT REFERENCES analytics.Dim_Date(date_sk),
     
     -- Status Flags
@@ -177,6 +180,7 @@ CREATE TABLE IF NOT EXISTS analytics.Fact_Safety_Incident (
     cargo_damage_cost NUMERIC(10, 2),
     claim_amount NUMERIC(10, 2),
     
-    -- NLP Categorizations
-    nlp_incident_category VARCHAR(100)
+    -- NLP Categorizations & Degenerate Dimensions
+    incident_category_sk INT REFERENCES analytics.Dim_Incident_Category(incident_category_sk),
+    incident_description VARCHAR(2000)
 );

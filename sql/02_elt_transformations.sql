@@ -66,6 +66,11 @@ SELECT
 FROM staging.facilities
 ON CONFLICT (facility_id) DO NOTHING;
 
+-- Insert Ghost Dimension for UNKNOWN_FACILITY
+INSERT INTO analytics.Dim_Facility (facility_id, facility_name, facility_type)
+VALUES ('UNKNOWN_FACILITY', 'Unknown', 'Unknown')
+ON CONFLICT (facility_id) DO NOTHING;
+
 -- 6. Populate Dynamic Dim_Date from Dispatch Dates
 INSERT INTO analytics.Dim_Date (date_sk, full_date, year, quarter, month, month_name, day_of_month, day_of_week, day_name, is_weekend)
 SELECT DISTINCT
@@ -100,13 +105,25 @@ INSERT INTO analytics.Dim_Delay_Reason (delay_reason_category)
 VALUES ('UNKNOWN')
 ON CONFLICT (delay_reason_category) DO NOTHING;
 
+-- 8. Dim_Incident_Category (NLP Categorization)
+INSERT INTO analytics.Dim_Incident_Category (incident_category)
+SELECT DISTINCT "Incident_Category"
+FROM staging.safety_incidents
+WHERE "Incident_Category" IS NOT NULL
+ON CONFLICT (incident_category) DO NOTHING;
+
+-- Ensure UNKNOWN drop into a default bucket
+INSERT INTO analytics.Dim_Incident_Category (incident_category)
+VALUES ('UNKNOWN')
+ON CONFLICT (incident_category) DO NOTHING;
+
 -- -------------------------------------------------------------------------
 -- POPULATE FACT TABLES
 -- -------------------------------------------------------------------------
 
 -- 1. Fact_Shipment (Joining Loads, Trips, Delivery, Fuel, and Maintenance)
 INSERT INTO analytics.Fact_Shipment (
-    load_id, trip_id, driver_sk, truck_sk, customer_sk, route_sk, dispatch_date_sk, delay_reason_sk,
+    load_id, trip_id, driver_id, truck_id, customer_id, route_id, facility_id, dispatch_date_sk, delay_reason_sk,
     delay_duration_minutes, is_sla_breached,
     revenue, fuel_surcharge, accessorial_charges, weight_lbs,
     actual_distance_miles, actual_duration_hours, fuel_gallons_used, average_mpg, idle_time_hours,
@@ -120,7 +137,8 @@ WITH TripFuel AS (
 TripDelivery AS (
     SELECT trip_id, 
            MAX(actual_datetime) AS actual_arrival_time, 
-           MAX(scheduled_datetime) AS expected_arrival_time
+           MAX(scheduled_datetime) AS expected_arrival_time,
+           MAX(facility_id) AS facility_id
     FROM staging.delivery_events
     WHERE event_type = 'Delivery'
     GROUP BY trip_id
@@ -131,18 +149,19 @@ TripMaintenance AS (
         SUM(m.total_cost) AS maintenance_cost,
         MAX(m."Delay_Reason") AS nlp_delay_reason
     FROM staging.trips t
-    JOIN staging.maintenance_records m ON t.truck_id = m.truck_id AND m.maintenance_date = t.dispatch_date
+    JOIN staging.maintenance_records m ON t.truck_id = m.truck_id AND CAST(m.maintenance_date AS DATE) = CAST(t.dispatch_date AS DATE)
     GROUP BY t.trip_id
 )
 SELECT 
     l.load_id,
     t.trip_id,
-    COALESCE(dd.driver_sk, (SELECT driver_sk FROM analytics.Dim_Driver WHERE driver_id = 'UNKNOWN_DRIVER')),
-    COALESCE(dt.truck_sk, (SELECT truck_sk FROM analytics.Dim_Truck WHERE truck_id = 'UNKNOWN_TRUCK')),
-    dc.customer_sk,
-    dr.route_sk,
+    COALESCE(t.driver_id, 'UNKNOWN_DRIVER'),
+    COALESCE(t.truck_id, 'UNKNOWN_TRUCK'),
+    l.customer_id,
+    l.route_id,
+    COALESCE(td.facility_id, 'UNKNOWN_FACILITY'),
     COALESCE(CAST(TO_CHAR(CAST(t.dispatch_date AS DATE), 'YYYYMMDD') AS INT), 19000101) AS dispatch_date_sk,
-    COALESCE(ddr.delay_reason_sk, (SELECT delay_reason_sk FROM analytics.Dim_Delay_Reason WHERE delay_reason_category = 'UNKNOWN')) AS delay_reason_sk,
+    COALESCE(dr.delay_reason_sk, (SELECT delay_reason_sk FROM analytics.Dim_Delay_Reason WHERE delay_reason_category = 'UNKNOWN')),
     
     -- 1. SLA & Delivery Performance Columns
     CAST(EXTRACT(EPOCH FROM (CAST(td.actual_arrival_time AS TIMESTAMP) - CAST(td.expected_arrival_time AS TIMESTAMP))) / 60 AS INT) AS delay_duration_minutes,
@@ -173,22 +192,18 @@ JOIN staging.loads l ON t.load_id = l.load_id
 LEFT JOIN TripFuel tf ON t.trip_id = tf.trip_id
 LEFT JOIN TripDelivery td ON t.trip_id = td.trip_id
 LEFT JOIN TripMaintenance tm ON t.trip_id = tm.trip_id
-LEFT JOIN analytics.Dim_Driver dd ON t.driver_id = dd.driver_id
-LEFT JOIN analytics.Dim_Truck dt ON t.truck_id = dt.truck_id
-LEFT JOIN analytics.Dim_Customer dc ON l.customer_id = dc.customer_id
-LEFT JOIN analytics.Dim_Route dr ON l.route_id = dr.route_id
-LEFT JOIN analytics.Dim_Delay_Reason ddr ON tm.nlp_delay_reason = ddr.delay_reason_category;
+LEFT JOIN analytics.Dim_Delay_Reason dr ON tm.nlp_delay_reason = dr.delay_reason_category;
 
 
 -- 2. Fact_Maintenance_Event
 INSERT INTO analytics.Fact_Maintenance_Event (
-    maintenance_id, truck_sk, maintenance_date_sk,
+    maintenance_id, truck_id, maintenance_date_sk,
     odometer_reading, labor_hours, labor_cost, parts_cost, total_cost, downtime_hours,
-    maintenance_type, nlp_delay_reason
+    maintenance_type, delay_reason_sk, service_description
 )
 SELECT 
     m.maintenance_id,
-    COALESCE(dt.truck_sk, (SELECT truck_sk FROM analytics.Dim_Truck WHERE truck_id = 'UNKNOWN_TRUCK')),
+    COALESCE(m.truck_id, 'UNKNOWN_TRUCK'),
     COALESCE(CAST(TO_CHAR(CAST(m.maintenance_date AS DATE), 'YYYYMMDD') AS INT), 19000101),
     
     CAST(m.odometer_reading AS NUMERIC),
@@ -199,22 +214,23 @@ SELECT
     CAST(m.downtime_hours AS NUMERIC),
     
     m.maintenance_type,
-    m."Delay_Reason" -- This is the NLP generated column from Python
+    COALESCE(dr.delay_reason_sk, (SELECT delay_reason_sk FROM analytics.Dim_Delay_Reason WHERE delay_reason_category = 'UNKNOWN')),
+    m.service_description
 FROM staging.maintenance_records m
-LEFT JOIN analytics.Dim_Truck dt ON m.truck_id = dt.truck_id;
+LEFT JOIN analytics.Dim_Delay_Reason dr ON m."Delay_Reason" = dr.delay_reason_category;
 
 
 -- 3. Fact_Safety_Incident
 INSERT INTO analytics.Fact_Safety_Incident (
-    incident_id, driver_sk, truck_sk, incident_date_sk,
+    incident_id, driver_id, truck_id, incident_date_sk,
     at_fault_flag, preventable_flag, injury_flag,
     vehicle_damage_cost, cargo_damage_cost, claim_amount,
-    nlp_incident_category
+    incident_category_sk, incident_description
 )
 SELECT 
     s.incident_id,
-    COALESCE(dd.driver_sk, (SELECT driver_sk FROM analytics.Dim_Driver WHERE driver_id = 'UNKNOWN_DRIVER')),
-    COALESCE(dt.truck_sk, (SELECT truck_sk FROM analytics.Dim_Truck WHERE truck_id = 'UNKNOWN_TRUCK')),
+    COALESCE(s.driver_id, 'UNKNOWN_DRIVER'),
+    COALESCE(s.truck_id, 'UNKNOWN_TRUCK'),
     COALESCE(CAST(TO_CHAR(CAST(s.incident_date AS DATE), 'YYYYMMDD') AS INT), 19000101),
     
     CASE WHEN s.at_fault_flag = 'True' THEN TRUE ELSE FALSE END,
@@ -225,7 +241,7 @@ SELECT
     CAST(s.cargo_damage_cost AS NUMERIC),
     CAST(s.claim_amount AS NUMERIC),
     
-    s."Incident_Category" -- NLP generated column
+    COALESCE(ic.incident_category_sk, (SELECT incident_category_sk FROM analytics.Dim_Incident_Category WHERE incident_category = 'UNKNOWN')),
+    s.description
 FROM staging.safety_incidents s
-LEFT JOIN analytics.Dim_Driver dd ON s.driver_id = dd.driver_id
-LEFT JOIN analytics.Dim_Truck dt ON s.truck_id = dt.truck_id;
+LEFT JOIN analytics.Dim_Incident_Category ic ON s."Incident_Category" = ic.incident_category;

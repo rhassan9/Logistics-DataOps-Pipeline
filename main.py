@@ -68,8 +68,8 @@ class ETLPipeline:
         logger.info("--- Processing Maintenance Logs ---")
         df = self.loader.load_csv("maintenance_records.csv")
         
-        # Parse text into categories
-        df = self.nlp.process_dataframe(df, text_column='service_description', new_category_col='Delay_Reason')
+        # Parse text into categories contextually
+        df = self.nlp.process_dataframe(df, text_column='service_description', new_category_col='Delay_Reason', context='maintenance')
         
         # Types
         df = self.transformer.cast_data_types(df, {'total_cost': 'float64', 'labor_cost': 'float64', 'parts_cost': 'float64', 'truck_id': 'str'})
@@ -102,8 +102,8 @@ class ETLPipeline:
             'truck_id': 'UNKNOWN_TRUCK'
         })
         
-        # Parse text into categorized incident types
-        df = self.nlp.process_dataframe(df, text_column='description', new_category_col='Incident_Category')
+        # Parse text into categorized incident types contextually
+        df = self.nlp.process_dataframe(df, text_column='description', new_category_col='Incident_Category', context='safety')
         
         # Types
         df = self.transformer.cast_data_types(df, {'vehicle_damage_cost': 'float64', 'cargo_damage_cost': 'float64', 'truck_id': 'str'})

@@ -17,9 +17,9 @@ SELECT
     SUM(f.total_cost) AS total_operating_cost,
     SUM(f.net_margin) AS total_profit,
     -- Profit per mile calculation
-    CAST(SUM(f.net_margin) / NULLIF(SUM(f.actual_distance_miles), 0) AS NUMERIC(10, 2)) AS profit_per_mile
+    CAST(SUM(f.net_trip_margin) / NULLIF(SUM(f.actual_distance_miles), 0) AS NUMERIC(10, 2)) AS profit_per_mile
 FROM analytics.Fact_Shipment f
-JOIN analytics.Dim_Route r ON f.route_sk = r.route_sk
+JOIN analytics.Dim_Route r ON f.route_id = r.route_id
 GROUP BY 
     r.origin_city, r.origin_state, r.destination_city, r.destination_state
 HAVING 
@@ -37,7 +37,6 @@ LIMIT 10;
 WITH DriverCohorts AS (
     -- Group drivers into tenure buckets based on hire date
     SELECT 
-        driver_sk,
         driver_id,
         first_name,
         last_name,
@@ -54,11 +53,11 @@ WITH DriverCohorts AS (
 SafetyAgg AS (
     -- Aggregate safety incidents per driver
     SELECT 
-        driver_sk,
+        driver_id,
         COUNT(incident_sk) as total_incidents,
         SUM(CASE WHEN preventable_flag = TRUE THEN 1 ELSE 0 END) as preventable_incidents
     FROM analytics.Fact_Safety_Incident
-    GROUP BY driver_sk
+    GROUP BY driver_id
 ),
 DeliveryAgg AS (
     -- Calculate On-Time Delivery percentage per driver (joining via staging to track raw events)
@@ -73,18 +72,18 @@ DeliveryAgg AS (
 )
 SELECT 
     c.tenure_cohort,
-    COUNT(DISTINCT c.driver_sk) AS active_driver_count,
+    COUNT(DISTINCT c.driver_id) AS active_driver_count,
     
     -- Safety Metrics
     COALESCE(SUM(s.total_incidents), 0) AS cohort_total_incidents,
-    CAST(COALESCE(SUM(s.preventable_incidents), 0) AS FLOAT) / NULLIF(COUNT(DISTINCT c.driver_sk), 0) AS preventable_incidents_per_driver,
+    CAST(COALESCE(SUM(s.preventable_incidents), 0) AS FLOAT) / NULLIF(COUNT(DISTINCT c.driver_id), 0) AS preventable_incidents_per_driver,
     
     -- Delivery Performance Metrics
     SUM(d.total_deliveries) AS cohort_total_deliveries,
     CAST(SUM(d.on_time_deliveries) AS FLOAT) / NULLIF(SUM(d.total_deliveries), 0) * 100 AS on_time_delivery_rate_pct
 
 FROM DriverCohorts c
-LEFT JOIN SafetyAgg s ON c.driver_sk = s.driver_sk
+LEFT JOIN SafetyAgg s ON c.driver_id = s.driver_id
 LEFT JOIN DeliveryAgg d ON c.driver_id = d.driver_id
 GROUP BY 
     c.tenure_cohort
@@ -105,7 +104,6 @@ ORDER BY
 WITH MaintenanceHistory AS (
     -- Pull maintenance events with truck age details
     SELECT 
-        m.truck_sk,
         t.truck_id,
         t.model_year,
         EXTRACT(YEAR FROM CURRENT_DATE) - t.model_year AS truck_age_years,
@@ -113,10 +111,11 @@ WITH MaintenanceHistory AS (
         d.month AS maintenance_month,
         m.total_cost,
         m.downtime_hours,
-        m.nlp_delay_reason
+        dr.delay_reason_category AS nlp_delay_reason
     FROM analytics.Fact_Maintenance_Event m
-    JOIN analytics.Dim_Truck t ON m.truck_sk = t.truck_sk
+    JOIN analytics.Dim_Truck t ON m.truck_id = t.truck_id
     JOIN analytics.Dim_Date d ON m.maintenance_date_sk = d.date_sk
+    LEFT JOIN analytics.Dim_Delay_Reason dr ON m.delay_reason_sk = dr.delay_reason_sk
     WHERE t.truck_id != 'UNKNOWN_TRUCK'
 )
 SELECT 

@@ -1,0 +1,104 @@
+========================================================================
+LOGISTICS DATA WAREHOUSE: POWER BI DAX MEASURES
+========================================================================
+This file contains the foundational DAX measures required to build the 
+Logistics Power BI Dashboard, specifically referencing your Kimball Star Schema.
+
+Create a specific "Key Measures" table in PowerBI to store these cleanly.
+
+------------------------------------------------------------------------
+1. THE C-SUITE METRICS (Financial & High-Level Health)
+------------------------------------------------------------------------
+
+-- Total Top-Line Revenue
+Total Revenue = SUM(Fact_Shipment[revenue])
+
+-- Total Operating Cost 
+Total Cost = SUM(Fact_Shipment[total_trip_cost])
+
+-- Total Profit (Net Margin after fuel, labor, and maintenance)
+-- Use this for your Map Visual colored by Profit Margin!
+Total Profit = SUM(Fact_Shipment[net_trip_margin])
+
+-- Average Cost Per Mile (CPM)
+Average CPM = 
+    DIVIDE(
+        [Total Cost], 
+        SUM(Fact_Shipment[actual_distance_miles]), 
+        0
+    )
+
+-- Profit Per Mile
+Profit Per Mile = 
+    DIVIDE(
+        [Total Profit], 
+        SUM(Fact_Shipment[actual_distance_miles]), 
+        0
+    )
+
+------------------------------------------------------------------------
+2. OPERATIONAL EXCELLENCE & SLA COMPLIANCE
+------------------------------------------------------------------------
+
+-- Total Volume of Shipments
+Total Trips = COUNTROWS(Fact_Shipment)
+
+-- Late Trips (Since your Fact table flags breaches as '1')
+Late Trips = SUM(Fact_Shipment[is_sla_breached])
+
+-- SLA Compliance %
+-- Perfect for the Clustered Column/Line chart vs Volume
+SLA Compliance % = 
+    VAR TotalCompleted = [Total Trips]
+    VAR Breached = [Late Trips]
+    VAR Compliant = TotalCompleted - Breached
+    RETURN DIVIDE(Compliant, TotalCompleted, 0)
+
+-- Average Delay Minutes
+Average Delay Minutes = AVERAGE(Fact_Shipment[delay_duration_minutes])
+
+------------------------------------------------------------------------
+3. THE NLP ROOT CAUSE METRICS (Pareto & Allocation)
+------------------------------------------------------------------------
+
+-- Count of Delay Incidents (For the Pareto Chart!)
+-- Use this measure alongside Dim_Delay_Reason[delay_reason_category]
+Delay Incident Count = 
+    CALCULATE(
+        [Total Trips],
+        Fact_Shipment[delay_duration_minutes] > 0
+    )
+
+-- Ghost Dimension Root Cause (% Delays by Unknown/Unallocated Assets)
+-- Put this in a Donut Chart!
+% Unallocated Asset Delays = 
+    VAR UnallocatedTrips = 
+        CALCULATE(
+            [Total Trips], 
+            Fact_Shipment[truck_id] = "UNKNOWN_TRUCK" || Fact_Shipment[driver_id] = "UNKNOWN_DRIVER"
+        )
+    RETURN DIVIDE(UnallocatedTrips, [Total Trips], 0)
+
+------------------------------------------------------------------------
+4. ASSET UTILIZATION & MAINTENANCE
+------------------------------------------------------------------------
+
+-- Total Maintenance Cost
+-- Use with the Scatter Plot against Dim_Truck[model_year]
+Total Maintenance Cost = SUM(Fact_Maintenance_Event[total_cost])
+
+-- Total Equipment Downtime
+Total Maintenance Downtime = SUM(Fact_Maintenance_Event[downtime_hours])
+
+-- Safety Damage Cost
+Total Incident Damage Cost = 
+    SUM(Fact_Safety_Incident[vehicle_damage_cost]) + SUM(Fact_Safety_Incident[cargo_damage_cost])
+
+------------------------------------------------------------------------
+5. ADVANCED KPI FLAGS (For Custom Formatting)
+------------------------------------------------------------------------
+
+-- Use this in the "Conditional Formatting" section to color your 
+-- SLA Compliance % card Green/Red.
+SLA Status Color = 
+    IF([SLA Compliance %] >= 0.95, "#28A745", "#DC3545")
