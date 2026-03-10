@@ -2,7 +2,7 @@
 LOGISTICS DATA WAREHOUSE: POWER BI DAX MEASURES
 ========================================================================
 This file contains the foundational DAX measures required to build the 
-Logistics Power BI Dashboard, specifically referencing your Kimball Star Schema.
+Logistics Power BI Dashboard, specifically referencing our Kimball Star Schema.
 
 Create a specific "Key Measures" table in PowerBI to store these cleanly.
 
@@ -43,7 +43,7 @@ Profit Per Mile =
 -- Total Volume of Shipments
 Total Trips = COUNTROWS(Fact_Shipment)
 
--- Late Trips (Since your Fact table flags breaches as '1')
+-- Late Trips (Since Fact table flags breaches as '1')
 Late Trips = SUM(Fact_Shipment[is_sla_breached])
 
 -- SLA Compliance %
@@ -55,14 +55,18 @@ SLA Compliance % =
     RETURN DIVIDE(Compliant, TotalCompleted, 0)
 
 -- Average Delay Minutes
-Average Delay Minutes = AVERAGE(Fact_Shipment[delay_duration_minutes])
+Average Delay Minutes = 
+    CALCULATE(
+        AVERAGE(Fact_Shipment[delay_duration_minutes]),
+        Fact_Shipment[delay_duration_minutes] > 0
+    )
 
 ------------------------------------------------------------------------
 3. THE NLP ROOT CAUSE METRICS (Pareto & Allocation)
 ------------------------------------------------------------------------
 
 -- Count of Delay Incidents (For the Pareto Chart!)
--- Use this measure alongside Dim_Delay_Reason[delay_reason_category]
+-- Will use this measure alongside Dim_Delay_Reason[delay_reason_category]
 Delay Incident Count = 
     CALCULATE(
         [Total Trips],
@@ -70,21 +74,21 @@ Delay Incident Count =
     )
 
 -- Ghost Dimension Root Cause (% Delays by Unknown/Unallocated Assets)
--- Put this in a Donut Chart!
+-- Will use this in a Donut Chart!
 % Unallocated Asset Delays = 
-    VAR UnallocatedTrips = 
+    VAR UnallocatedDelays = 
         CALCULATE(
-            [Total Trips], 
+            [Delay Incident Count], 
             Fact_Shipment[truck_id] = "UNKNOWN_TRUCK" || Fact_Shipment[driver_id] = "UNKNOWN_DRIVER"
         )
-    RETURN DIVIDE(UnallocatedTrips, [Total Trips], 0)
+    RETURN DIVIDE(UnallocatedDelays, [Delay Incident Count], 0)
 
 ------------------------------------------------------------------------
 4. ASSET UTILIZATION & MAINTENANCE
 ------------------------------------------------------------------------
 
 -- Total Maintenance Cost
--- Use with the Scatter Plot against Dim_Truck[model_year]
+-- Will use with the Scatter Plot against Dim_Truck[model_year]
 Total Maintenance Cost = SUM(Fact_Maintenance_Event[total_cost])
 
 -- Total Equipment Downtime
@@ -98,7 +102,7 @@ Total Incident Damage Cost =
 5. ADVANCED KPI FLAGS (For Custom Formatting)
 ------------------------------------------------------------------------
 
--- Use this in the "Conditional Formatting" section to color your 
+-- Will use this in the "Conditional Formatting" section to color your 
 -- SLA Compliance % card Green/Red.
 SLA Status Color = 
     IF([SLA Compliance %] >= 0.95, "#28A745", "#DC3545")
