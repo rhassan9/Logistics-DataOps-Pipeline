@@ -2,7 +2,7 @@
 -- Staging model for clean_drivers.csv
 
 with source as (
-    select * from {{ source('logistics_raw', 'clean_drivers') }}
+    select * from {{ source('logistics_raw', 'drivers') }}
 ),
 
 renamed as (

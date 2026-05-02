@@ -3,7 +3,7 @@
 -- Standardizes column types and names before joining into Fact_Shipment.
 
 with source as (
-    select * from {{ source('logistics_raw', 'clean_trips') }}
+    select * from {{ source('logistics_raw', 'trips') }}
 ),
 
 renamed as (

@@ -3,7 +3,7 @@
 -- Used to compute delay_duration_minutes and is_sla_breached in Fact_Shipment.
 
 with source as (
-    select * from {{ source('logistics_raw', 'clean_delivery_events') }}
+    select * from {{ source('logistics_raw', 'delivery_events') }}
 ),
 
 renamed as (
