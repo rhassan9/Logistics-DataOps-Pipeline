@@ -19,7 +19,7 @@ renamed as (
         cast(employment_status  as varchar)  as employment_status,
         cast(cdl_class          as varchar)  as cdl_class,
         cast(years_experience   as integer)  as years_experience,
-        cast(is_active_driver   as smallint) as is_active_driver
+        cast(cast(is_active_driver as integer) as smallint) as is_active_driver
     from source
 )
 

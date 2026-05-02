@@ -15,12 +15,12 @@ renamed as (
         cast(incident_type        as varchar)     as incident_type,
         cast(location_city        as varchar)     as location_city,
         cast(location_state       as varchar)     as location_state,
-        cast(at_fault_flag        as smallint)    as at_fault_flag,
-        cast(injury_flag          as smallint)    as injury_flag,
+        cast(cast(at_fault_flag as integer) as smallint)    as at_fault_flag,
+        cast(cast(injury_flag as integer) as smallint)    as injury_flag,
         cast(vehicle_damage_cost  as numeric(12,2)) as vehicle_damage_cost,
         cast(cargo_damage_cost    as numeric(12,2)) as cargo_damage_cost,
         cast(claim_amount         as numeric(12,2)) as claim_amount,
-        cast(preventable_flag     as smallint)    as preventable_flag,
+        cast(cast(preventable_flag as integer) as smallint)    as preventable_flag,
         cast(description          as text)        as description,
         cast(incident_category    as varchar)     as incident_category
     from source

@@ -19,7 +19,7 @@ renamed as (
         cast(downtime_hours    as numeric(8,2)) as downtime_hours,
         cast(facility_location as varchar)     as facility_location,
         cast(service_description as text)      as service_description,
-        cast(delay_reason      as varchar)     as delay_reason
+        cast("Delay_Reason"      as varchar)     as delay_reason
     from source
 )
 

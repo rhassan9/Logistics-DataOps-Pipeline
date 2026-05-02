@@ -16,8 +16,8 @@ renamed as (
         cast(scheduled_datetime  as timestamp)  as scheduled_datetime,
         cast(actual_datetime     as timestamp)  as actual_datetime,
         cast(detention_minutes   as numeric(10,2)) as detention_minutes,
-        cast(on_time_flag        as smallint)   as on_time_flag,
-        cast(is_telematics_drop  as smallint)   as is_telematics_drop
+        cast(cast(on_time_flag as integer) as smallint)   as on_time_flag,
+        cast(cast(is_telematics_drop as integer) as smallint)   as is_telematics_drop
     from source
 )
 
