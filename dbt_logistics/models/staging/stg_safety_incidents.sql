@@ -22,7 +22,7 @@ renamed as (
         cast(claim_amount         as numeric(12,2)) as claim_amount,
         cast(cast(preventable_flag as integer) as smallint)    as preventable_flag,
         cast(description          as text)        as description,
-        cast(incident_category    as varchar)     as incident_category
+        cast("Incident_Category"    as varchar)     as incident_category
     from source
 )
 
