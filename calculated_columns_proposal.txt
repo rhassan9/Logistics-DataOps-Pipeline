@@ -1,0 +1,100 @@
+========================================================================
+PROPOSED CALCULATED COLUMNS FOR STAR SCHEMA
+========================================================================
+
+To eliminate row-level iteration inside Power BI (which can significantly 
+degrade VertiPaq engine performance on large datasets), we should pre-calculate 
+the following attributes directly in the ETL layer and persist them as physical 
+columns in the Data Warehouse.
+
+------------------------------------------------------------------------
+1. Fact_Shipment
+------------------------------------------------------------------------
+
+Target Column: total_billed_revenue
+Formula: revenue + fuel_surcharge + accessorial_charges
+Explanation: Consolidates the top-line billing into a single metric. Power BI will no longer need to execute `SUMX(Fact_Shipment, [revenue] + [fuel_surcharge] + ...)` for every report.
+
+Target Column: total_trip_cost
+Formula: (actual_distance_miles * base_rate_per_mile) + [Sum of related Fuel Purchase total_cost matched via trip_id] + [Sum of related Safety vehicle_damage_cost + cargo_damage_cost - claim_amount matched via trip_id]
+Explanation: Computes the precise cost of a dispatch without arbitrary allocation. Since `clean_fuel_purchases.csv` and `clean_safety_incidents.csv` both contain an explicit `trip_id`, we aggregate their financial impacts directly to the shipment. Insurance payouts (`claim_amount`) are subtracted as they are cost-reimbursements. Maintenance is purposefully excluded from this trip-level metric because it lacks a `trip_id` (and a truck may run multiple trips a day), meaning maintenance costs are tracked separately at the Asset level, not the Trip level.
+
+Target Column: net_trip_margin
+Formula: total_billed_revenue - total_trip_cost
+Explanation: The holy grail metric for the C-Suite map visual. Pre-computing this means Power BI just does a simple Sum across millions of rows instantly, reflecting the true profit of the run after direct fuel and accident costs.
+
+Target Column: runtime_efficiency_ratio
+Formula: actual_duration_hours / (actual_distance_miles / 50)  -- assuming 50mph baseline
+Explanation: A pre-computed index where > 1.0 means the trip took longer than baseline expectations (due to traffic, routing, or driver behavior).
+
+Target Column: trip_revenue_per_mile
+Formula: total_billed_revenue / NULLIF(actual_distance_miles, 0)
+Explanation: Critical BI metric. Allows rapid aggregation of Revenue-per-mile across any slice (by Truck, Driver, or Route).
+
+Target Column: trip_cost_per_mile
+Formula: total_trip_cost / NULLIF(actual_distance_miles, 0)
+Explanation: Critical BI metric. By pre-calculating this at the trip level, we avoid complex and slow SUMX iterators in DAX when analyzing route efficiency.
+
+Target Column: driver_efficiency_score
+Formula: net_trip_margin * (1 - is_sla_breached)
+Explanation: BI ranking metric. Directly ties the driver's run to profitability, zeroing out the score if they breached the SLA appointment.
+
+Target Column: delay_duration_minutes
+Formula: Math.abs(actual_datetime - scheduled_datetime) in minutes
+Explanation: Calculates the absolute difference between when the truck was supposed to arrive vs when it actually arrived. If the truck arrived early, this will be a negative number.
+
+Target Column: is_sla_breached
+Formula: IF delay_duration_minutes > 119 THEN 1 ELSE 0
+Explanation: Based on standard logistics industry metrics, a shipment is generally granted a 2-hour (119 minute) grace window. If the truck arrives 2+ hours past the scheduled appointment, the SLA is formally breached. Also acts as the flag for the Operations Pareto chart.
+
+Target Column: fuel_efficiency_divergence
+Formula: average_mpg - [average_mpg from driver_monthly_metrics / truck_utilization_metrics snapshot]
+Explanation: Utilizes the pre-aggregated metric tables to pull the rolling historical MPG for that specific asset, and subtracts it from the specific dispatch's MPG to find over/under performance.
+
+------------------------------------------------------------------------
+2. Dim_Truck
+------------------------------------------------------------------------
+
+Target Column: truck_age_years
+Formula: EXTRACT YEAR FROM Max Dataset Date - model_year
+Explanation: Instead of Power BI calculating date diffs dynamically, we materialize the age based on the maximum date in the dataset (late 2024).
+
+Target Column: is_underutilized_asset
+Formula: IF status = 'Ready' AND (Max Dataset Date - acquisition_date > 30 Days) AND (Total Lifetime actual_distance_miles < 2000) THEN 1 ELSE 0
+Explanation: Ops Optimization. Flags a truck as "Underutilized" if it's active, owned for more than 30 days, but has run less than 2,000 miles total.
+
+------------------------------------------------------------------------
+3. Dim_Driver
+------------------------------------------------------------------------
+
+Target Column: driver_tenure_days
+Formula: IF(termination_date is NULL, Max Dataset Date, termination_date) - hire_date
+Explanation: Materializes the length of employment based on the dataset's maximum date rather than current machine date.
+
+Target Column: driver_safety_risk_index
+Formula: [Count of at_fault_flag = 1 from clean_safety_incidents] / [driver_tenure_days converted to years]
+Explanation: Evaluates driver-to-truck ratios and training needs by scoring the number of At-Fault safety incidents per year of materialized tenure.
+
+------------------------------------------------------------------------
+4. Dim_Customer
+------------------------------------------------------------------------
+
+Target Column: concentration_risk_tier
+Formula: IF ([Customer's Total total_billed_revenue] / [Company Total total_billed_revenue] > 0.15) THEN 'High Risk (>15%)' ELSE 'Normal'
+Explanation: BI Metric. Pre-calculates the Customer Concentration Risk by checking if a single customer makes up more than 15% of the entire company's historical revenue.
+
+------------------------------------------------------------------------
+5. Dim_Route
+------------------------------------------------------------------------
+
+Target Column: route_name
+Formula: origin_city + ', ' + origin_state + ' -> ' + destination_city + ', ' + destination_state
+Explanation: Pre-concatenates the routing logic so Power BI slicers and visuals can instantly display a clean, human-readable route string (e.g., "Chicago, IL -> Dallas, TX"). Doing this in the ETL saves Power BI from performing row-by-row string operations in DAX, which speeds up report rendering significantly.
+
+------------------------------------------------------------------------
+6. Fact_Maintenance_Event
+------------------------------------------------------------------------
+
+Target Column: cost_per_downtime_hour
+Formula: total_cost / NULLIF(downtime_hours, 0)
+Explanation: Highlights highly inefficient repair jobs (e.g., waiting 4 days for a $50 part).

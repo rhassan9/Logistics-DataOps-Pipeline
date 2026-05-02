@@ -1,0 +1,29 @@
+name: 'dbt_logistics'
+version: '1.0.0'
+config-version: 2
+
+# This profile connects dbt to your PostgreSQL database (see ~/.dbt/profiles.yml)
+profile: 'dbt_logistics'
+
+# Folder layout
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model configuration
+models:
+  dbt_logistics:
+    staging:
+      +schema: staging         # All stg_ models land in the 'staging' schema
+      +materialized: view      # Keep staging as views (zero storage cost, always fresh)
+    marts:
+      +schema: marts           # All dim_ and fact_ models land in the 'marts' schema
+      +materialized: table     # Persist as physical tables for Power BI Import Mode

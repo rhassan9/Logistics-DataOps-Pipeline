@@ -66,7 +66,7 @@ Average Delay Minutes =
 ------------------------------------------------------------------------
 
 -- Count of Delay Incidents (For the Pareto Chart!)
--- Will use this measure alongside Dim_Delay_Reason[delay_reason_category]
+-- Will use this measure alongside Dim_Incident_Category[incident_category]
 Delay Incident Count = 
     CALCULATE(
         [Total Trips],
@@ -74,12 +74,13 @@ Delay Incident Count =
     )
 
 -- Ghost Dimension Root Cause (% Delays by Unknown/Unallocated Assets)
--- Will use this in a Donut Chart!
+-- Uses RELATED() to traverse to the dimension's natural key for the Ghost lookup.
 % Unallocated Asset Delays = 
     VAR UnallocatedDelays = 
         CALCULATE(
             [Delay Incident Count], 
-            Fact_Shipment[truck_id] = "UNKNOWN_TRUCK" || Fact_Shipment[driver_id] = "UNKNOWN_DRIVER"
+            RELATED(Dim_Truck[truck_id]) = "UNKNOWN_TRUCK"
+                || RELATED(Dim_Driver[driver_id]) = "UNKNOWN_DRIVER"
         )
     RETURN DIVIDE(UnallocatedDelays, [Delay Incident Count], 0)
 
@@ -106,3 +107,121 @@ Total Incident Damage Cost =
 -- SLA Compliance % card Green/Red.
 SLA Status Color = 
     IF([SLA Compliance %] >= 0.95, "#28A745", "#DC3545")
+
+------------------------------------------------------------------------
+6. TIME INTELLIGENCE (Cumulative, YTD, & Month-over-Month)
+------------------------------------------------------------------------
+-- Since we have 3 years of data (2022-2024/2025), Time Intelligence is critical.
+-- We must rely on our robust Dim_Date table for these functions to work correctly.
+
+-- 6A. Cumulative / Year-to-Date (YTD) Metrics
+YTD Revenue = 
+    TOTALYTD([Total Revenue], Dim_Date[full_date])
+
+YTD Profit = 
+    TOTALYTD([Total Profit], Dim_Date[full_date])
+
+YTD SLA Compliance % = 
+    CALCULATE(
+        [SLA Compliance %],
+        DATESYTD(Dim_Date[full_date])
+    )
+
+-- 6B. Month-over-Month (MoM) Growth Metrics
+-- Calculates the Prior Month's Revenue for comparison
+Total Revenue (Last Month) = 
+    CALCULATE(
+        [Total Revenue],
+        DATEADD(Dim_Date[full_date], -1, MONTH)
+    )
+
+-- Calculates the % Change MoM
+Revenue MoM % Change = 
+    DIVIDE(
+        [Total Revenue] - [Total Revenue (Last Month)],
+        [Total Revenue (Last Month)],
+        0
+    )
+
+-- SLA MoM Variance (Are we getting better or worse at delivering on time?)
+SLA Compliance (Last Month) = 
+    CALCULATE(
+        [SLA Compliance %],
+        DATEADD(Dim_Date[full_date], -1, MONTH)
+    )
+
+SLA MoM Variance = 
+    [SLA Compliance %] - [SLA Compliance (Last Month)]
+
+-- 6C. Pure Cumulative (All-Time Running Total)
+Cumulative Revenue = 
+    CALCULATE(
+        [Total Revenue],
+        FILTER(
+            ALL(Dim_Date),
+            Dim_Date[full_date] <= MAX(Dim_Date[full_date])
+        )
+    )
+
+Cumulative Profit = 
+    CALCULATE(
+        [Total Profit],
+        FILTER(
+            ALL(Dim_Date),
+            Dim_Date[full_date] <= MAX(Dim_Date[full_date])
+        )
+    )
+
+Cumulative Trips = 
+    CALCULATE(
+        [Total Trips],
+        FILTER(
+            ALL(Dim_Date),
+            Dim_Date[full_date] <= MAX(Dim_Date[full_date])
+        )
+    )
+
+-- 6D. Year-over-Year (YoY) Growth Metrics
+-- Perfect for a 3-year dataset. Compares e.g. March 2024 vs March 2023
+-- removes seasonal noise that MoM can't filter out.
+
+-- Revenue for the Same Period Last Year
+Total Revenue (Last Year) =
+    CALCULATE(
+        [Total Revenue],
+        SAMEPERIODLASTYEAR(Dim_Date[full_date])
+    )
+
+-- YoY Revenue Growth %
+Revenue YoY % Change =
+    DIVIDE(
+        [Total Revenue] - [Total Revenue (Last Year)],
+        [Total Revenue (Last Year)],
+        0
+    )
+
+-- Profit for the Same Period Last Year
+Total Profit (Last Year) =
+    CALCULATE(
+        [Total Profit],
+        SAMEPERIODLASTYEAR(Dim_Date[full_date])
+    )
+
+-- YoY Profit Growth %
+Profit YoY % Change =
+    DIVIDE(
+        [Total Profit] - [Total Profit (Last Year)],
+        [Total Profit (Last Year)],
+        0
+    )
+
+-- SLA Compliance for the Same Period Last Year
+SLA Compliance (Last Year) =
+    CALCULATE(
+        [SLA Compliance %],
+        SAMEPERIODLASTYEAR(Dim_Date[full_date])
+    )
+
+-- YoY SLA Variance (positive = improving, negative = degrading)
+SLA YoY Variance =
+    [SLA Compliance %] - [SLA Compliance (Last Year)]

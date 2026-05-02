@@ -1,0 +1,253 @@
+========================================================================
+FINAL KIMBALL STAR SCHEMA DESIGN: LOGISTICS DATA WAREHOUSE
+========================================================================
+
+Based on the 14 processed operational tables, here is the perfected 
+Enterprise Star Schema. It separates descriptive entities (Dimensions) 
+from measurable business events (Facts) for optimal Power BI performance.
+
+------------------------------------------------------------------------
+PART 1: DIMENSION TABLES (The "Who, What, Where" for Slicing & Dicing)
+------------------------------------------------------------------------
+
+1. Dim_Driver (Source: clean_drivers.csv)
+   - driver_sk (Surrogate Key)
+   - driver_id (Natural Key)
+   - first_name
+   - last_name
+   - hire_date
+   - termination_date
+   - license_number
+   - license_state
+   - date_of_birth
+   - home_terminal
+   - employment_status
+   - cdl_class
+   - years_experience
+   - is_active_driver
+   [Calculated Columns]
+   - driver_tenure_days
+   - driver_safety_risk_index
+
+2. Dim_Truck (Source: trucks.csv)
+   - truck_sk (Surrogate Key)
+   - truck_id (Natural/Ghost Key - e.g., 'UNKNOWN_TRUCK')
+   - unit_number
+   - make
+   - model_year
+   - vin
+   - acquisition_date
+   - acquisition_mileage
+   - fuel_type
+   - tank_capacity_gallons
+   - status
+   - home_terminal
+   [Calculated Columns]
+   - truck_age_years
+   - is_underutilized_asset
+
+3. Dim_Trailer (Source: trailers.csv)
+   - trailer_sk (Surrogate Key)
+   - trailer_id (Natural Key)
+   - trailer_number
+   - trailer_type
+   - length_feet
+   - model_year
+   - vin
+   - acquisition_date
+   - status
+   - current_location
+
+4. Dim_Customer (Source: customers.csv)
+   - customer_sk (Surrogate Key)
+   - customer_id (Natural Key)
+   - customer_name
+   - customer_type
+   - credit_terms_days
+   - primary_freight_type
+   - account_status
+   - contract_start_date
+   - annual_revenue_potential
+   [Calculated Columns]
+   - concentration_risk_tier
+
+5. Dim_Facility (Source: facilities.csv)
+   - facility_sk (Surrogate Key)
+   - facility_id (Natural Key)
+   - facility_name
+   - facility_type
+   - city
+   - state
+   - latitude
+   - longitude
+   - dock_doors
+   - operating_hours
+
+6. Dim_Route (Source: routes.csv)
+   - route_sk (Surrogate Key)
+   - route_id (Natural Key)
+   - origin_city
+   - origin_state
+   - destination_city
+   - destination_state
+   - typical_distance_miles
+   - base_rate_per_mile
+   - fuel_surcharge_rate
+   - typical_transit_days
+   [Calculated Columns]
+   - route_name
+
+
+7. Dim_Incident_Category (Source: NLP from clean_safety_incidents.csv)
+   - incident_category_sk (Surrogate Key)
+   - incident_category (e.g., 'Collision', 'Citation', 'Unknown / Unreported Delay', 'No Delay')
+   - incident_type (e.g., 'Crash', 'Ticket')
+   - at_fault_flag (Boolean 1/0)
+   - injury_flag (Boolean 1/0)
+   - is_preventable (Boolean 1/0)
+   *Note: This dimension will contain hardcoded rows for 'Unknown / Unreported Delay' (for SLA breaches not linked to a Safety Incident) and 'No Delay' (for on-time shipments).*
+
+9. Dim_Date (Standard Auto-Generated Database Time Dimension)
+   - date_sk (Integer - e.g., 20240115)
+   - full_date
+   - day_of_week
+   - month_name
+   - quarter
+   - year
+   - is_weekend
+
+------------------------------------------------------------------------
+PART 2: FACT TABLES (The "How Much, How Many" Quantitative Events)
+------------------------------------------------------------------------
+
+1. Fact_Shipment (Consolidated grain: 1 Row = 1 Delivered Freight Load)
+   Sources: loads.csv + clean_trips.csv + clean_delivery_events.csv
+   [Foreign Keys -> Dimensions]
+   - date_sk (From load_date)
+   - customer_sk
+   - route_sk
+   - driver_sk
+   - truck_sk
+   - trailer_sk
+   - facility_sk (Destination delivery location)
+   - incident_category_sk (If SLA is breached AND Safety Incident: Map to incident category. If SLA breached AND NO Safety Incident: Map to 'Unknown / Unreported Delay'. If SLA NOT breached: Map to 'No Delay'.)
+   [Degenerate Dimensions / Line Item IDs]
+   - load_id
+   - trip_id
+   - load_type
+   - booking_type
+   [Measures / Metrics]
+   - weight_lbs
+   - pieces
+   - actual_distance_miles
+   - actual_duration_hours
+   - detention_minutes
+   - fuel_gallons_used
+   - average_mpg 
+   - idle_time_hours
+   - revenue
+   - fuel_surcharge
+   - accessorial_charges
+   - is_telematics_drop (1/0)
+   - is_sla_breached / on_time_flag (1/0)
+   [Calculated Columns]
+   - total_billed_revenue
+   - total_trip_cost
+   - net_trip_margin
+   - runtime_efficiency_ratio
+   - trip_revenue_per_mile
+   - trip_cost_per_mile
+   - driver_efficiency_score
+   - fuel_efficiency_divergence
+   - delay_duration_minutes
+   - is_sla_breached
+
+2. Fact_Fuel_Purchase (Grain: 1 Row = 1 Fuel Swipe Event)
+   Source: clean_fuel_purchases.csv
+   [Foreign Keys -> Dimensions]
+   - date_sk (From purchase_date)
+   - truck_sk
+   - driver_sk
+   - facility_sk (If matched to network, else Null)
+   [Degenerate Dimensions]
+   - fuel_purchase_id
+   - trip_id
+   - fuel_card_number
+   - location_city
+   - location_state
+   [Measures]
+   - gallons
+   - price_per_gallon
+   - total_cost
+
+3. Fact_Maintenance_Event (Grain: 1 Row = 1 Repair)
+   Source: clean_maintenance_records.csv
+   [Foreign Keys -> Dimensions]
+   - date_sk (From maintenance_date)
+   - truck_sk
+   [Degenerate Dimensions]
+   - maintenance_id
+   - maintenance_type
+   - service_description (Raw text payload)
+   - facility_location 
+   [Measures]
+   - odometer_reading
+   - labor_hours
+   - labor_cost
+   - parts_cost
+   - total_cost
+   - downtime_hours
+   [Calculated Columns]
+   - cost_per_downtime_hour
+
+4. Fact_Safety_Incident (Grain: 1 Row = 1 Accident / Violation)
+   Source: clean_safety_incidents.csv
+   [Foreign Keys -> Dimensions]
+   - date_sk (From incident_date)
+   - truck_sk
+   - driver_sk
+   - incident_category_sk
+   [Degenerate Dimensions]
+   - incident_id
+   - trip_id
+   - location_city
+   - location_state
+   - description (Raw text payload)
+   [Measures]
+   - preventable_flag (1/0)
+   - vehicle_damage_cost
+   - cargo_damage_cost
+   - claim_amount
+
+------------------------------------------------------------------------
+PART 3: AGGREGATE / SNAPSHOT FACT TABLES (For Fast Dashboards)
+------------------------------------------------------------------------
+These are Periodic Snapshot Fact Tables where the grain is explicitly 
+1 Row = 1 Month per Entity.
+
+5. Fact_Driver_Monthly_Snapshot (Source: driver_monthly_metrics.csv)
+   [Foreign Keys]
+   - month_sk (Links to Dim_Date for the first of the month)
+   - driver_sk
+   [Measures]
+   - trips_completed
+   - total_miles
+   - total_revenue
+   - average_mpg
+   - total_fuel_gallons
+   - on_time_delivery_rate
+   - average_idle_hours
+
+6. Fact_Truck_Monthly_Snapshot (Source: truck_utilization_metrics.csv)
+   [Foreign Keys]
+   - month_sk (Links to Dim_Date for the first of the month)
+   - truck_sk
+   [Measures]
+   - trips_completed
+   - total_miles
+   - total_revenue
+   - average_mpg
+   - maintenance_events
+   - maintenance_cost
+   - downtime_hours
+   - utilization_rate

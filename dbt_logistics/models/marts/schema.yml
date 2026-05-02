@@ -1,0 +1,182 @@
+version: 2
+
+models:
+
+  # -----------------------------------------------------------------------
+  # DIMENSION TABLES
+  # -----------------------------------------------------------------------
+
+  - name: dim_driver
+    description: "Driver personnel dimension with tenure and safety risk calculations."
+    columns:
+      - name: driver_sk
+        description: "Integer surrogate key."
+        tests: [unique, not_null]
+      - name: driver_id
+        description: "Natural key from source system."
+        tests: [unique, not_null]
+      - name: driver_tenure_days
+        description: "Days employed, anchored to max dataset date."
+        tests: [not_null]
+      - name: driver_safety_risk_index
+        description: "At-fault incidents per year of tenure."
+
+  - name: dim_truck
+    description: "Tractor asset dimension with age and underutilization flag."
+    columns:
+      - name: truck_sk
+        tests: [unique, not_null]
+      - name: truck_id
+        tests: [unique, not_null]
+      - name: truck_age_years
+        tests: [not_null]
+      - name: is_underutilized_asset
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+
+  - name: dim_trailer
+    description: "Trailer asset dimension."
+    columns:
+      - name: trailer_sk
+        tests: [unique, not_null]
+      - name: trailer_id
+        tests: [unique, not_null]
+
+  - name: dim_customer
+    description: "B2B customer dimension with concentration risk tier."
+    columns:
+      - name: customer_sk
+        tests: [unique, not_null]
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: concentration_risk_tier
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['High Risk (>15%)', 'Normal']
+
+  - name: dim_route
+    description: "Freight lane dimension with pre-concatenated route_name."
+    columns:
+      - name: route_sk
+        tests: [unique, not_null]
+      - name: route_id
+        tests: [unique, not_null]
+      - name: route_name
+        tests: [not_null]
+
+  - name: dim_facility
+    description: "Terminal and warehouse location dimension."
+    columns:
+      - name: facility_sk
+        tests: [unique, not_null]
+      - name: facility_id
+        tests: [unique, not_null]
+
+  - name: dim_incident_category
+    description: "Conformed dimension mapping NLP tags from safety events."
+    columns:
+      - name: incident_category_sk
+        tests: [unique, not_null]
+      - name: at_fault_flag
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: injury_flag
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: is_preventable
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+
+  - name: dim_date
+    description: "Standard date spine dimension. Integer PK in YYYYMMDD format."
+    columns:
+      - name: date_sk
+        tests: [unique, not_null]
+      - name: full_date
+        tests: [unique, not_null]
+      - name: is_weekend
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+
+  # -----------------------------------------------------------------------
+  # FACT TABLES
+  # -----------------------------------------------------------------------
+
+  - name: fact_shipment
+    description: >
+      Core fact table. Grain: 1 row = 1 delivered freight load.
+      Contains all calculated business metrics including net margin and SLA breach.
+    columns:
+      - name: trip_id
+        tests: [unique, not_null]
+      - name: load_id
+        tests: [not_null]
+      - name: date_sk
+        tests: [not_null]
+      - name: total_billed_revenue
+        tests: [not_null]
+      - name: net_trip_margin
+        description: "Revenue minus exact fuel and safety costs. Can be negative."
+      - name: is_sla_breached
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: delay_duration_minutes
+        description: "Negative = early arrival. Positive = late arrival."
+
+  - name: fact_fuel_purchase
+    description: "Grain: 1 row = 1 fuel swipe event."
+    columns:
+      - name: fuel_purchase_id
+        tests: [unique, not_null]
+      - name: total_cost
+        tests: [not_null]
+
+  - name: fact_maintenance_event
+    description: "Grain: 1 row = 1 repair/PM event."
+    columns:
+      - name: maintenance_id
+        tests: [unique, not_null]
+      - name: total_cost
+        tests: [not_null]
+      - name: cost_per_downtime_hour
+        description: "Total cost divided by non-zero downtime. Null if downtime was 0."
+
+  - name: fact_safety_incident
+    description: "Grain: 1 row = 1 accident, fine, or DOT citation."
+    columns:
+      - name: incident_id
+        tests: [unique, not_null]
+
+  - name: fact_driver_monthly_snapshot
+    description: "Periodic snapshot. Grain: 1 row per driver per month."
+    columns:
+      - name: month_sk
+        tests: [not_null]
+      - name: driver_sk
+        tests: [not_null]
+
+  - name: fact_truck_monthly_snapshot
+    description: >
+      Periodic snapshot. Grain: 1 row per truck per month.
+      Also used as the historical MPG baseline source in fact_shipment.
+    columns:
+      - name: month_sk
+        tests: [not_null]
+      - name: truck_sk
+        tests: [not_null]
+      - name: utilization_rate
+        description: "Percent of time the truck was actively moving freight."

@@ -1,0 +1,175 @@
+version: 2
+
+sources:
+  - name: logistics_raw
+    description: >
+      Raw processed CSV tables loaded into PostgreSQL by the Python ETL pipeline.
+      These are the source-of-truth inputs for all dbt staging models.
+    schema: staging
+
+    tables:
+      - name: clean_trips
+        description: "Physical truck dispatch records. 1 row = 1 trip."
+        columns:
+          - name: trip_id
+            description: "Primary key for the dispatch."
+            tests: [unique, not_null]
+          - name: load_id
+            tests: [not_null]
+          - name: driver_id
+            tests: [not_null]
+          - name: truck_id
+            tests: [not_null]
+          - name: trailer_id
+            tests: [not_null]
+          - name: dispatch_date
+          - name: actual_distance_miles
+          - name: actual_duration_hours
+          - name: fuel_gallons_used
+          - name: average_mpg
+          - name: idle_time_hours
+          - name: trip_status
+
+      - name: loads
+        description: "Freight contract assignments. Contains financial billing data."
+        columns:
+          - name: load_id
+            tests: [unique, not_null]
+          - name: customer_id
+            tests: [not_null]
+          - name: route_id
+            tests: [not_null]
+          - name: load_date
+          - name: load_type
+          - name: weight_lbs
+          - name: pieces
+          - name: revenue
+          - name: fuel_surcharge
+          - name: accessorial_charges
+          - name: load_status
+          - name: booking_type
+
+      - name: clean_delivery_events
+        description: "Timestamps of specific logistics events (arrival, departure, delay)."
+        columns:
+          - name: event_id
+            tests: [unique, not_null]
+          - name: load_id
+          - name: trip_id
+          - name: event_type
+          - name: facility_id
+          - name: scheduled_datetime
+          - name: actual_datetime
+          - name: detention_minutes
+          - name: on_time_flag
+          - name: is_telematics_drop
+          - name: location_city
+          - name: location_state
+
+      - name: clean_drivers
+        description: "Personnel dimension. 1 row = 1 driver."
+        columns:
+          - name: driver_id
+            tests: [unique, not_null]
+
+      - name: trucks
+        description: "Motorized tractor assets."
+        columns:
+          - name: truck_id
+            tests: [unique, not_null]
+
+      - name: trailers
+        description: "Unmotorized trailer assets."
+        columns:
+          - name: trailer_id
+            tests: [unique, not_null]
+
+      - name: customers
+        description: "B2B client accounts."
+        columns:
+          - name: customer_id
+            tests: [unique, not_null]
+
+      - name: routes
+        description: "Defined freight lanes between origin and destination."
+        columns:
+          - name: route_id
+            tests: [unique, not_null]
+
+      - name: facilities
+        description: "Physical locations: terminals, warehouses, cross-docks."
+        columns:
+          - name: facility_id
+            tests: [unique, not_null]
+
+      - name: clean_fuel_purchases
+        description: "Over-the-road fuel swipe events. 1 row = 1 fuel purchase."
+        columns:
+          - name: fuel_purchase_id
+            tests: [unique, not_null]
+          - name: trip_id
+          - name: truck_id
+          - name: driver_id
+          - name: purchase_date
+          - name: gallons
+          - name: price_per_gallon
+          - name: total_cost
+          - name: fuel_card_number
+          - name: location_city
+          - name: location_state
+
+      - name: clean_maintenance_records
+        description: "Truck repair and PM event logs."
+        columns:
+          - name: maintenance_id
+            tests: [unique, not_null]
+          - name: truck_id
+            tests: [not_null]
+          - name: maintenance_date
+          - name: maintenance_type
+          - name: odometer_reading
+          - name: labor_hours
+          - name: labor_cost
+          - name: parts_cost
+          - name: total_cost
+          - name: downtime_hours
+          - name: facility_location
+          - name: service_description
+          - name: delay_reason
+
+      - name: clean_safety_incidents
+        description: "Accident, fine, and injury event logs."
+        columns:
+          - name: incident_id
+            tests: [unique, not_null]
+          - name: trip_id
+          - name: truck_id
+          - name: driver_id
+          - name: incident_date
+          - name: incident_type
+          - name: at_fault_flag
+          - name: injury_flag
+          - name: vehicle_damage_cost
+          - name: cargo_damage_cost
+          - name: claim_amount
+          - name: preventable_flag
+          - name: description
+          - name: incident_category
+          - name: location_city
+          - name: location_state
+
+      - name: driver_monthly_metrics
+        description: "Pre-aggregated monthly performance snapshot per driver."
+        columns:
+          - name: driver_id
+            tests: [not_null]
+          - name: month
+            tests: [not_null]
+
+      - name: truck_utilization_metrics
+        description: "Pre-aggregated monthly performance snapshot per truck."
+        columns:
+          - name: truck_id
+            tests: [not_null]
+          - name: month
+            tests: [not_null]

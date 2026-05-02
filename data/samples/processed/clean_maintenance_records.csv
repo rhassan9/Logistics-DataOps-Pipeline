@@ -1,51 +1,51 @@
 maintenance_id,truck_id,maintenance_date,maintenance_type,odometer_reading,labor_hours,labor_cost,parts_cost,total_cost,facility_location,downtime_hours,service_description,Delay_Reason
-MAINT00000001,TRK00085,2022-01-01,Inspection,400255,7.8,781.42,10.41,791.83,Kansas City,22.2,Emergency Inspection,Uncategorized
-MAINT00000002,TRK00041,2022-01-01,Tire,268041,0.9,80.91,3207.16,3288.07,Seattle,8.0,Scheduled Tire,Mechanical Failure
-MAINT00000003,TRK00090,2022-01-01,Preventive,698915,7.2,733.18,1570.57,2303.75,Miami,16.5,Routine Preventive,Uncategorized
-MAINT00000004,TRK00056,2022-01-02,Inspection,416522,2.8,298.8,67.48,366.28,Kansas City,34.6,Emergency Inspection,Uncategorized
-MAINT00000005,TRK00029,2022-01-02,Repair,179968,4.6,409.08,982.59,1391.67,Omaha,4.4,Emergency Repair,Uncategorized
-MAINT00000006,TRK00120,2022-01-02,Preventive,680507,5.0,498.12,3029.54,3527.66,Omaha,43.5,Scheduled Preventive,Uncategorized
-MAINT00000007,TRK00017,2022-01-02,Repair,599078,0.9,83.38,1098.9,1182.28,Denver,34.8,Emergency Repair,Uncategorized
-MAINT00000008,TRK00038,2022-01-03,Tire,605379,7.1,785.79,1483.25,2269.04,Miami,3.9,Scheduled Tire,Mechanical Failure
-MAINT00000009,TRK00054,2022-01-03,Inspection,232147,4.0,371.51,143.21,514.72,Dallas,14.0,Routine Inspection,Uncategorized
-MAINT00000010,TRK00076,2022-01-03,Inspection,222428,0.6,74.65,14.12,88.77,Columbus,23.0,Emergency Inspection,Uncategorized
-MAINT00000011,TRK00075,2022-01-04,Preventive,316796,2.2,208.96,2521.65,2730.61,Atlanta,30.1,Emergency Preventive,Uncategorized
-MAINT00000012,TRK00075,2022-01-05,Tire,422318,6.9,713.9,2958.89,3672.79,Nashville,39.8,Scheduled Tire,Mechanical Failure
-MAINT00000013,TRK00102,2022-01-05,Preventive,191896,3.4,320.22,3187.72,3507.94,Columbus,13.1,Scheduled Preventive,Uncategorized
-MAINT00000014,TRK00107,2022-01-05,Transmission,743890,0.8,86.23,1060.27,1146.5,Philadelphia,3.8,Routine Transmission,Mechanical Failure
-MAINT00000015,TRK00099,2022-01-06,Brake,335024,4.5,540.61,1202.57,1743.18,Las Vegas,5.4,Routine Brake,Mechanical Failure
-MAINT00000016,TRK00096,2022-01-06,Transmission,602868,5.0,549.31,1569.41,2118.72,New York,33.5,Scheduled Transmission,Mechanical Failure
-MAINT00000017,TRK00067,2022-01-06,Repair,140744,3.3,398.02,1741.81,2139.83,Columbus,24.3,Emergency Repair,Uncategorized
-MAINT00000018,TRK00105,2022-01-06,Transmission,169446,2.3,213.74,3292.48,3506.22,Nashville,13.6,Scheduled Transmission,Mechanical Failure
-MAINT00000019,TRK00052,2022-01-08,Brake,416258,7.1,817.97,2041.84,2859.81,Dallas,24.8,Scheduled Brake,Mechanical Failure
-MAINT00000020,TRK00042,2022-01-08,Transmission,321175,0.7,72.4,64.06,136.46,Kansas City,41.7,Emergency Transmission,Mechanical Failure
-MAINT00000021,TRK00044,2022-01-08,Brake,414068,6.6,578.45,467.98,1046.43,Detroit,7.1,Emergency Brake,Mechanical Failure
-MAINT00000022,TRK00112,2022-01-08,Brake,600597,4.8,470.26,477.73,947.99,Nashville,17.7,Emergency Brake,Mechanical Failure
-MAINT00000023,TRK00072,2022-01-09,Repair,341871,7.3,637.67,1030.93,1668.6,Charlotte,11.2,Routine Repair,Uncategorized
-MAINT00000024,TRK00068,2022-01-09,Preventive,439480,4.3,477.14,2446.27,2923.41,Kansas City,8.5,Routine Preventive,Uncategorized
-MAINT00000025,TRK00015,2022-01-09,Brake,597392,4.1,410.5,944.57,1355.07,New York,6.1,Emergency Brake,Mechanical Failure
-MAINT00000026,TRK00070,2022-01-10,Tire,52211,5.3,559.51,2440.72,3000.23,Minneapolis,31.1,Scheduled Tire,Mechanical Failure
-MAINT00000027,TRK00008,2022-01-10,Transmission,412408,1.4,156.92,2509.7,2666.62,Phoenix,28.9,Emergency Transmission,Mechanical Failure
-MAINT00000028,TRK00046,2022-01-10,Brake,477257,4.5,459.8,996.88,1456.68,Portland,27.1,Emergency Brake,Mechanical Failure
-MAINT00000029,TRK00110,2022-01-10,Tire,512580,1.3,120.48,1986.74,2107.22,Minneapolis,38.6,Emergency Tire,Mechanical Failure
-MAINT00000030,TRK00065,2022-01-10,Repair,531717,0.7,67.34,2353.98,2421.32,Omaha,40.0,Scheduled Repair,Uncategorized
-MAINT00000031,TRK00091,2022-01-11,Preventive,86945,3.5,370.22,3247.63,3617.85,Los Angeles,35.0,Emergency Preventive,Uncategorized
-MAINT00000032,TRK00093,2022-01-11,Preventive,747986,2.9,256.81,1550.12,1806.93,Miami,9.1,Routine Preventive,Uncategorized
-MAINT00000033,TRK00029,2022-01-11,Engine,213961,3.6,373.4,698.65,1072.05,Portland,23.4,Emergency Engine,Mechanical Failure
-MAINT00000034,TRK00077,2022-01-11,Repair,479412,0.9,92.6,1010.33,1102.93,Omaha,26.6,Emergency Repair,Uncategorized
-MAINT00000035,TRK00034,2022-01-12,Preventive,613026,4.5,516.01,1874.09,2390.1,Nashville,25.3,Scheduled Preventive,Uncategorized
-MAINT00000036,TRK00006,2022-01-12,Engine,183616,1.5,129.95,2094.46,2224.41,Detroit,36.5,Routine Engine,Mechanical Failure
-MAINT00000037,TRK00117,2022-01-12,Inspection,563953,1.1,121.15,13.56,134.71,Minneapolis,7.5,Scheduled Inspection,Uncategorized
-MAINT00000038,TRK00025,2022-01-12,Repair,248118,2.7,286.6,1636.24,1922.84,Omaha,23.4,Scheduled Repair,Uncategorized
-MAINT00000039,TRK00003,2022-01-13,Engine,162744,7.8,915.93,1554.25,2470.18,Denver,19.6,Routine Engine,Mechanical Failure
-MAINT00000040,TRK00034,2022-01-13,Transmission,575306,8.0,750.05,3028.64,3778.69,Philadelphia,18.6,Routine Transmission,Mechanical Failure
-MAINT00000041,TRK00029,2022-01-13,Tire,707686,5.9,670.86,165.0,835.86,Phoenix,8.5,Emergency Tire,Mechanical Failure
-MAINT00000042,TRK00077,2022-01-13,Inspection,93731,2.8,348.5,126.74,475.24,Miami,21.1,Routine Inspection,Uncategorized
-MAINT00000043,TRK00099,2022-01-13,Preventive,194594,0.8,75.58,3478.03,3553.61,Miami,5.7,Routine Preventive,Uncategorized
-MAINT00000044,TRK00006,2022-01-14,Engine,629714,4.2,386.73,1058.81,1445.54,Denver,23.1,Routine Engine,Mechanical Failure
-MAINT00000045,TRK00032,2022-01-14,Engine,250887,3.7,451.6,1480.04,1931.64,Miami,47.2,Routine Engine,Mechanical Failure
-MAINT00000046,TRK00046,2022-01-15,Preventive,204480,1.5,176.83,2490.06,2666.89,Omaha,16.2,Emergency Preventive,Uncategorized
-MAINT00000047,TRK00006,2022-01-15,Inspection,678182,1.8,216.9,124.7,341.6,Milwaukee,17.6,Scheduled Inspection,Uncategorized
-MAINT00000048,TRK00013,2022-01-15,Inspection,279252,0.9,82.13,110.0,192.13,Atlanta,48.0,Scheduled Inspection,Uncategorized
-MAINT00000049,TRK00027,2022-01-17,Repair,542033,2.6,226.89,2765.04,2991.93,Las Vegas,33.8,Scheduled Repair,Uncategorized
-MAINT00000050,TRK00006,2022-01-17,Repair,615274,2.8,343.6,1866.29,2209.89,Salt Lake City,3.4,Emergency Repair,Uncategorized
+MAINT00000001,TRK00085,2022-01-01,Inspection,400255,7.8,781.42,10.41,791.83,Kansas City,22.2,Emergency Inspection,Emergency
+MAINT00000002,TRK00041,2022-01-01,Tire,268041,0.9,80.91,3207.16,3288.07,Seattle,8.0,Scheduled Tire,Tire
+MAINT00000003,TRK00090,2022-01-01,Preventive,698915,7.2,733.18,1570.57,2303.75,Miami,16.5,Routine Preventive,Preventive
+MAINT00000004,TRK00056,2022-01-02,Inspection,416522,2.8,298.8,67.48,366.28,Kansas City,34.6,Emergency Inspection,Emergency
+MAINT00000005,TRK00029,2022-01-02,Repair,179968,4.6,409.08,982.59,1391.67,Omaha,4.4,Emergency Repair,Emergency
+MAINT00000006,TRK00120,2022-01-02,Preventive,680507,5.0,498.12,3029.54,3527.66,Omaha,43.5,Scheduled Preventive,Preventive
+MAINT00000007,TRK00017,2022-01-02,Repair,599078,0.9,83.38,1098.9,1182.28,Denver,34.8,Emergency Repair,Emergency
+MAINT00000008,TRK00038,2022-01-03,Tire,605379,7.1,785.79,1483.25,2269.04,Miami,3.9,Scheduled Tire,Tire
+MAINT00000009,TRK00054,2022-01-03,Inspection,232147,4.0,371.51,143.21,514.72,Dallas,14.0,Routine Inspection,Routine
+MAINT00000010,TRK00076,2022-01-03,Inspection,222428,0.6,74.65,14.12,88.77,Columbus,23.0,Emergency Inspection,Emergency
+MAINT00000011,TRK00075,2022-01-04,Preventive,316796,2.2,208.96,2521.65,2730.61,Atlanta,30.1,Emergency Preventive,Preventive
+MAINT00000012,TRK00075,2022-01-05,Tire,422318,6.9,713.9,2958.89,3672.79,Nashville,39.8,Scheduled Tire,Tire
+MAINT00000013,TRK00102,2022-01-05,Preventive,191896,3.4,320.22,3187.72,3507.94,Columbus,13.1,Scheduled Preventive,Preventive
+MAINT00000014,TRK00107,2022-01-05,Transmission,743890,0.8,86.23,1060.27,1146.5,Philadelphia,3.8,Routine Transmission,Transmission
+MAINT00000015,TRK00099,2022-01-06,Brake,335024,4.5,540.61,1202.57,1743.18,Las Vegas,5.4,Routine Brake,Brake
+MAINT00000016,TRK00096,2022-01-06,Transmission,602868,5.0,549.31,1569.41,2118.72,New York,33.5,Scheduled Transmission,Transmission
+MAINT00000017,TRK00067,2022-01-06,Repair,140744,3.3,398.02,1741.81,2139.83,Columbus,24.3,Emergency Repair,Emergency
+MAINT00000018,TRK00105,2022-01-06,Transmission,169446,2.3,213.74,3292.48,3506.22,Nashville,13.6,Scheduled Transmission,Transmission
+MAINT00000019,TRK00052,2022-01-08,Brake,416258,7.1,817.97,2041.84,2859.81,Dallas,24.8,Scheduled Brake,Brake
+MAINT00000020,TRK00042,2022-01-08,Transmission,321175,0.7,72.4,64.06,136.46,Kansas City,41.7,Emergency Transmission,Transmission
+MAINT00000021,TRK00044,2022-01-08,Brake,414068,6.6,578.45,467.98,1046.43,Detroit,7.1,Emergency Brake,Brake
+MAINT00000022,TRK00112,2022-01-08,Brake,600597,4.8,470.26,477.73,947.99,Nashville,17.7,Emergency Brake,Brake
+MAINT00000023,TRK00072,2022-01-09,Repair,341871,7.3,637.67,1030.93,1668.6,Charlotte,11.2,Routine Repair,Routine
+MAINT00000024,TRK00068,2022-01-09,Preventive,439480,4.3,477.14,2446.27,2923.41,Kansas City,8.5,Routine Preventive,Preventive
+MAINT00000025,TRK00015,2022-01-09,Brake,597392,4.1,410.5,944.57,1355.07,New York,6.1,Emergency Brake,Brake
+MAINT00000026,TRK00070,2022-01-10,Tire,52211,5.3,559.51,2440.72,3000.23,Minneapolis,31.1,Scheduled Tire,Tire
+MAINT00000027,TRK00008,2022-01-10,Transmission,412408,1.4,156.92,2509.7,2666.62,Phoenix,28.9,Emergency Transmission,Transmission
+MAINT00000028,TRK00046,2022-01-10,Brake,477257,4.5,459.8,996.88,1456.68,Portland,27.1,Emergency Brake,Brake
+MAINT00000029,TRK00110,2022-01-10,Tire,512580,1.3,120.48,1986.74,2107.22,Minneapolis,38.6,Emergency Tire,Tire
+MAINT00000030,TRK00065,2022-01-10,Repair,531717,0.7,67.34,2353.98,2421.32,Omaha,40.0,Scheduled Repair,Repair
+MAINT00000031,TRK00091,2022-01-11,Preventive,86945,3.5,370.22,3247.63,3617.85,Los Angeles,35.0,Emergency Preventive,Preventive
+MAINT00000032,TRK00093,2022-01-11,Preventive,747986,2.9,256.81,1550.12,1806.93,Miami,9.1,Routine Preventive,Preventive
+MAINT00000033,TRK00029,2022-01-11,Engine,213961,3.6,373.4,698.65,1072.05,Portland,23.4,Emergency Engine,Engine
+MAINT00000034,TRK00077,2022-01-11,Repair,479412,0.9,92.6,1010.33,1102.93,Omaha,26.6,Emergency Repair,Emergency
+MAINT00000035,TRK00034,2022-01-12,Preventive,613026,4.5,516.01,1874.09,2390.1,Nashville,25.3,Scheduled Preventive,Preventive
+MAINT00000036,TRK00006,2022-01-12,Engine,183616,1.5,129.95,2094.46,2224.41,Detroit,36.5,Routine Engine,Engine
+MAINT00000037,TRK00117,2022-01-12,Inspection,563953,1.1,121.15,13.56,134.71,Minneapolis,7.5,Scheduled Inspection,Inspection
+MAINT00000038,TRK00025,2022-01-12,Repair,248118,2.7,286.6,1636.24,1922.84,Omaha,23.4,Scheduled Repair,Repair
+MAINT00000039,TRK00003,2022-01-13,Engine,162744,7.8,915.93,1554.25,2470.18,Denver,19.6,Routine Engine,Engine
+MAINT00000040,TRK00034,2022-01-13,Transmission,575306,8.0,750.05,3028.64,3778.69,Philadelphia,18.6,Routine Transmission,Transmission
+MAINT00000041,TRK00029,2022-01-13,Tire,707686,5.9,670.86,165.0,835.86,Phoenix,8.5,Emergency Tire,Tire
+MAINT00000042,TRK00077,2022-01-13,Inspection,93731,2.8,348.5,126.74,475.24,Miami,21.1,Routine Inspection,Routine
+MAINT00000043,TRK00099,2022-01-13,Preventive,194594,0.8,75.58,3478.03,3553.61,Miami,5.7,Routine Preventive,Preventive
+MAINT00000044,TRK00006,2022-01-14,Engine,629714,4.2,386.73,1058.81,1445.54,Denver,23.1,Routine Engine,Engine
+MAINT00000045,TRK00032,2022-01-14,Engine,250887,3.7,451.6,1480.04,1931.64,Miami,47.2,Routine Engine,Engine
+MAINT00000046,TRK00046,2022-01-15,Preventive,204480,1.5,176.83,2490.06,2666.89,Omaha,16.2,Emergency Preventive,Preventive
+MAINT00000047,TRK00006,2022-01-15,Inspection,678182,1.8,216.9,124.7,341.6,Milwaukee,17.6,Scheduled Inspection,Inspection
+MAINT00000048,TRK00013,2022-01-15,Inspection,279252,0.9,82.13,110.0,192.13,Atlanta,48.0,Scheduled Inspection,Inspection
+MAINT00000049,TRK00027,2022-01-17,Repair,542033,2.6,226.89,2765.04,2991.93,Las Vegas,33.8,Scheduled Repair,Repair
+MAINT00000050,TRK00006,2022-01-17,Repair,615274,2.8,343.6,1866.29,2209.89,Salt Lake City,3.4,Emergency Repair,Emergency
