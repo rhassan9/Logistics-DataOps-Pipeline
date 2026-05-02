@@ -161,14 +161,34 @@ All measures are documented in `powerbi_dax_measures.txt`. Key Time Intelligence
 
 ## 🚀 How to Run Locally
 
-### 1. Python ETL Pipeline
+### 1. Database Configuration
 ```bash
-# Clone and set up virtual environment
+# 1. Clone and set up virtual environment
 git clone https://github.com/rhassan9/Logistics-DataOps-Pipeline.git
 cd Logistics-DataOps-Pipeline
-python -m venv venv && source venv/bin/activate
 
-# Install dependencies
+# 2. Configure Environment Variables
+cp .env.example .env
+# Edit .env with your local PostgreSQL credentials
+
+# 3. Configure dbt Profile (~/.dbt/profiles.yml)
+# You must create this file to point dbt to your local database:
+# dbt_logistics:
+#   target: dev
+#   outputs:
+#     dev:
+#       type: postgres
+#       host: localhost
+#       user: your_postgres_user
+#       password: your_postgres_password
+#       port: 5432
+#       dbname: logistics_db
+#       schema: public
+```
+
+### 2. Python ETL Pipeline
+```bash
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 
