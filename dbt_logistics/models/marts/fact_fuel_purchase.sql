@@ -8,7 +8,11 @@ with fuel as (
 
 dim_trucks    as (select truck_sk, truck_id from {{ ref('dim_truck') }}),
 dim_drivers   as (select driver_sk, driver_id from {{ ref('dim_driver') }}),
-dim_facilities as (select facility_sk, city, state from {{ ref('dim_facility') }}),
+dim_facilities as (
+    select min(facility_sk) as facility_sk, city, state 
+    from {{ ref('dim_facility') }} 
+    group by city, state
+),
 dim_dates     as (select date_sk, full_date from {{ ref('dim_date') }})
 
 select
