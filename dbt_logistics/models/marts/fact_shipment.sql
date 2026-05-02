@@ -41,7 +41,8 @@ fuel_costs as (
 safety_costs as (
     select
         trip_id,
-        sum(vehicle_damage_cost + cargo_damage_cost - claim_amount) as trip_safety_cost
+        sum(vehicle_damage_cost + cargo_damage_cost - claim_amount) as trip_safety_cost,
+        max(incident_category) as primary_incident_category
     from {{ ref('stg_safety_incidents') }}
     group by trip_id
 ),
