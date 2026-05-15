@@ -23,4 +23,23 @@ renamed as (
     from source
 )
 
+ghost as (
+    select
+        cast('UNKNOWN_DRIVER' as varchar)  as driver_id,
+        cast('Unknown' as varchar)         as first_name,
+        cast('Unknown' as varchar)         as last_name,
+        cast('1970-01-01' as date)         as hire_date,
+        cast(null as date)                 as termination_date,
+        cast('UNKNOWN' as varchar)         as license_number,
+        cast('UNK' as varchar)             as license_state,
+        cast('1970-01-01' as date)         as date_of_birth,
+        cast('UNKNOWN' as varchar)         as home_terminal,
+        cast('Unknown' as varchar)         as employment_status,
+        cast('Unknown' as varchar)         as cdl_class,
+        cast(0 as integer)                 as years_experience,
+        cast(0 as smallint)                as is_active_driver
+)
+
 select * from renamed
+union all
+select * from ghost

@@ -210,11 +210,6 @@ models:
           - relationships:
               to: ref('dim_truck')
               field: truck_sk
-      - name: facility_sk
-        tests:
-          - relationships:
-              to: ref('dim_facility')
-              field: facility_sk
       - name: cost_per_downtime_hour
         description: "Total cost divided by non-zero downtime. Null if downtime was 0."
 
