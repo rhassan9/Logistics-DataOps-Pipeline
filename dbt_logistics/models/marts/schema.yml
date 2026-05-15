@@ -124,7 +124,41 @@ models:
       - name: load_id
         tests: [not_null]
       - name: date_sk
-        tests: [not_null]
+        tests: 
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_sk
+      - name: driver_sk
+        tests:
+          - relationships:
+              to: ref('dim_driver')
+              field: driver_sk
+      - name: truck_sk
+        tests:
+          - relationships:
+              to: ref('dim_truck')
+              field: truck_sk
+      - name: trailer_sk
+        tests:
+          - relationships:
+              to: ref('dim_trailer')
+              field: trailer_sk
+      - name: customer_sk
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_sk
+      - name: route_sk
+        tests:
+          - relationships:
+              to: ref('dim_route')
+              field: route_sk
+      - name: incident_category_sk
+        tests:
+          - relationships:
+              to: ref('dim_incident_category')
+              field: incident_category_sk
       - name: total_billed_revenue
         tests: [not_null]
       - name: net_trip_margin
@@ -144,7 +178,26 @@ models:
         tests: [unique, not_null]
       - name: total_cost
         tests: [not_null]
-
+      - name: date_sk
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_sk
+      - name: truck_sk
+        tests:
+          - relationships:
+              to: ref('dim_truck')
+              field: truck_sk
+      - name: driver_sk
+        tests:
+          - relationships:
+              to: ref('dim_driver')
+              field: driver_sk
+      - name: facility_sk
+        tests:
+          - relationships:
+              to: ref('dim_facility')
+              field: facility_sk
   - name: fact_maintenance_event
     description: "Grain: 1 row = 1 repair/PM event."
     columns:
@@ -152,6 +205,16 @@ models:
         tests: [unique, not_null]
       - name: total_cost
         tests: [not_null]
+      - name: truck_sk
+        tests:
+          - relationships:
+              to: ref('dim_truck')
+              field: truck_sk
+      - name: facility_sk
+        tests:
+          - relationships:
+              to: ref('dim_facility')
+              field: facility_sk
       - name: cost_per_downtime_hour
         description: "Total cost divided by non-zero downtime. Null if downtime was 0."
 
@@ -160,6 +223,26 @@ models:
     columns:
       - name: incident_id
         tests: [unique, not_null]
+      - name: date_sk
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_sk
+      - name: truck_sk
+        tests:
+          - relationships:
+              to: ref('dim_truck')
+              field: truck_sk
+      - name: driver_sk
+        tests:
+          - relationships:
+              to: ref('dim_driver')
+              field: driver_sk
+      - name: incident_category_sk
+        tests:
+          - relationships:
+              to: ref('dim_incident_category')
+              field: incident_category_sk
 
   - name: fact_driver_monthly_snapshot
     description: "Periodic snapshot. Grain: 1 row per driver per month."
@@ -167,7 +250,11 @@ models:
       - name: month_sk
         tests: [not_null]
       - name: driver_sk
-        tests: [not_null]
+        tests: 
+          - not_null
+          - relationships:
+              to: ref('dim_driver')
+              field: driver_sk
 
   - name: fact_truck_monthly_snapshot
     description: >
@@ -177,6 +264,10 @@ models:
       - name: month_sk
         tests: [not_null]
       - name: truck_sk
-        tests: [not_null]
+        tests: 
+          - not_null
+          - relationships:
+              to: ref('dim_truck')
+              field: truck_sk
       - name: utilization_rate
         description: "Percent of time the truck was actively moving freight."
