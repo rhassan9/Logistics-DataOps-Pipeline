@@ -21,7 +21,7 @@ renamed as (
         cast(years_experience   as integer)  as years_experience,
         cast(cast(is_active_driver as integer) as smallint) as is_active_driver
     from source
-)
+),
 
 ghost as (
     select

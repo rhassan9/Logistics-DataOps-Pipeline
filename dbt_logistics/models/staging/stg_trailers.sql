@@ -17,7 +17,7 @@ renamed as (
         cast(status            as varchar)  as status,
         cast(current_location  as varchar)  as current_location
     from source
-)
+),
 
 ghost as (
     select

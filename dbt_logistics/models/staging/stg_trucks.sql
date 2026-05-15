@@ -19,7 +19,7 @@ renamed as (
         cast(status                as varchar)     as status,
         cast(home_terminal         as varchar)     as home_terminal
     from source
-)
+),
 
 ghost as (
     select
